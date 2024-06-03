@@ -3,6 +3,10 @@
 namespace common\models;
 
 use common\models\AppActiveRecord;
+use common\modules\user\models\User;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
@@ -18,6 +22,11 @@ use yii\helpers\ArrayHelper;
  *
  * @property-read User $user
  */
+#[Schema(properties: [
+    new Property(property: 'user', type: 'string'),
+    new Property(property: 'max_points', type: 'integer'),
+    new Property(property: 'updated_at', type: 'integer'),
+])]
 class Rating extends AppActiveRecord
 {
     /**
@@ -63,6 +72,15 @@ class Rating extends AppActiveRecord
             'user_id' => Yii::t('app', 'User ID'),
             'max_points' => Yii::t('app', 'Max Points'),
             'updated_at' => Yii::t('app', 'Updated At'),
+        ];
+    }
+
+    public function fields()
+    {
+        return [
+            'user' => fn () => $this->user->username,
+            'max_points',
+            'updated_at'
         ];
     }
 

@@ -2,6 +2,8 @@
 
 namespace common\modules\user\actions;
 
+use admin\models\LoginUIDForm;
+use common\models\AppModel;
 use api\behaviors\returnStatusBehavior\{JsonError, JsonSuccess, RequestFormData};
 use common\components\exceptions\ModelSaveException;
 use common\models\LoginForm;
@@ -75,6 +77,23 @@ class LoginAction extends BaseAction
     }
 
     /**
+     * Авторизация для формы
+     *
+     * @throws ModelSaveException
+     * @throws Exception
+     * @throws HttpException
+     */
+    private function login(AppModel $loginForm)
+    {
+        $form = $loginForm;
+        $form->load(Yii::$app->request->post(), '');
+        if (!$form->login()) {
+            return $this->controller->returnError('Login error', $form->errors);
+        }
+        return $this->controller->returnSuccess(UserHelper::getProfile($form->user), 'profile');
+    }
+
+    /**
      * Авторизация по e-mail
      *
      * @throws ModelSaveException
@@ -83,11 +102,18 @@ class LoginAction extends BaseAction
      */
     private function emailLogin(): array
     {
-        $form = new LoginForm();
-        $form->load(Yii::$app->request->post(), '');
-        if (!$form->login()) {
-            return $this->controller->returnError('Login error', $form->errors);
-        }
-        return $this->controller->returnSuccess(UserHelper::getProfile($form->user), 'profile');
+        return $this->login(new LoginForm());
+    }
+
+    /**
+     * Авторизация по uid
+     *
+     * @throws ModelSaveException
+     * @throws Exception
+     * @throws HttpException
+     */
+    private function uidLogin() : array
+    {
+        return $this->login(new LoginUIDForm());
     }
 }

@@ -22,12 +22,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= RbacHtml::encode($this->title) ?></h1>
 
-    <div>
-        <?= 
+<!--    <div>
+        <?=
             RbacHtml::a(Yii::t('app', 'Create Rating'), ['create'], ['class' => 'btn btn-success']);
 //           $this->render('_create_modal', ['model' => $model]);
         ?>
-    </div>
+    </div>-->
 
     <?= SortableGridView::widget([
         'dataProvider' => $dataProvider,
@@ -36,9 +36,9 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => SerialColumn::class],
 
-            Column::widget(),
-            Column::widget(['attr' => 'user_id']),
-            Column::widget(['attr' => 'max_points']),
+//            Column::widget(),
+            Column::widget(['attr' => 'user_id', 'editable' => false]),
+            Column::widget(['attr' => 'max_points', 'editable' => false]),
             ColumnDate::widget(['attr' => 'updated_at', 'searchModel' => $searchModel, 'editable' => false]),
 
             ['class' => GroupedActionColumn::class]

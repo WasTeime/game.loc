@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= RbacHtml::encode($this->title) ?></h1>
 
     <div>
-        <?= 
+        <?=
             RbacHtml::a(Yii::t('app', 'Create Game'), ['create'], ['class' => 'btn btn-success']);
 //           $this->render('_create_modal', ['model' => $model]);
         ?>
@@ -35,12 +35,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => SerialColumn::class],
 
-            Column::widget(),
+//            Column::widget(),
             Column::widget(['attr' => 'start']),
             Column::widget(['attr' => 'end']),
             Column::widget(['attr' => 'points']),
-            Column::widget(['attr' => 'user_id']),
-//            Column::widget(['attr' => 'status']),
+//            Column::widget(['attr' => 'user_id']),
+            Column::widget(['attr' => 'status']),
 
             ['class' => GroupedActionColumn::class]
         ]

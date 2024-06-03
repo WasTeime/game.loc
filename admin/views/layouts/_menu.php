@@ -1,6 +1,7 @@
 <?php
 
 use admin\components\widgets\searchMenu\SearchMenu;
+use admin\enums\AdminStatus;
 use admin\models\UserAdminSearch;
 use admin\modules\modelExportImport\models\ModelImportLogSearch;
 use admin\modules\rbac\components\RbacNav;
@@ -33,13 +34,13 @@ NavBar::begin([
         ]
     ]
 ]);
-echo SearchMenu::widget();
+//echo SearchMenu::widget();
 $menuItems = [];
 if (!Yii::$app->user->isGuest) {
     /** @var Log $logModule */
     $logModule = Yii::$app->getModule('log');
     $menuItems = [
-        ['label' => Icon::show('chart-bar') . 'Статистика', 'url' => ['/statistic/index']],
+        //['label' => Icon::show('chart-bar') . 'Статистика', 'url' => ['/statistic/index']],
         [
             'label' => Icon::show('users') . 'Пользователи',
             'url' => UserUrl::setFilters(UserSearch::class, ['/user/user/index']),
@@ -48,11 +49,14 @@ if (!Yii::$app->user->isGuest) {
         [
             'label' => Icon::show('file-alt') . 'Контент',
             'items' => [
-                ['label' => Icon::show('wrench') . 'Публичные параметры', 'url' => ['/param/index']],
+                /*['label' => Icon::show('wrench') . 'Публичные параметры', 'url' => ['/param/index']],
                 [
                     'label' => Icon::show('align-justify') . 'Тексты',
                     'url' => UserUrl::setFilters(TextSearch::class, ['/text/index'])
-                ]
+                ]*/
+                ['label' => Icon::show('align-justify') . Yii::t('app', 'Games'), 'url' => ['/game/index']],
+                ['label' => Icon::show('align-justify') . Yii::t('app', 'Ratings'), 'url' => ['/rating/index']],
+                ['label' => Icon::show('align-justify') . Yii::t('app', 'Rating Logs'), 'url' => ['/rating/index']],
             ]
         ],
         [

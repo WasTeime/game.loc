@@ -54,7 +54,7 @@ $this->params['layout_class'] = 'container-fluid';
 
             Column::widget(),
             Column::widget(['attr' => 'username', 'editable' => false]),
-            Column::widget(['attr' => 'auth_source', 'editable' => false, 'width' => 170]),
+/*            Column::widget(['attr' => 'auth_source', 'editable' => false, 'width' => 170]),
             Column::widget(['attr' => 'userExt.first_name', 'editable' => false]),
             Column::widget(['attr' => 'userExt.last_name', 'editable' => false]),
             Column::widget(['attr' => 'userExt.phone', 'format' => 'phone', 'editable' => false]),
@@ -77,7 +77,7 @@ $this->params['layout_class'] = 'container-fluid';
                 ],
                 'format' => 'raw'
             ],
-            ColumnSwitch::widget(['attr' => 'email.is_confirmed', 'editable' => false]),
+            ColumnSwitch::widget(['attr' => 'email.is_confirmed', 'editable' => false]),*/
             ColumnDate::widget(['attr' => 'last_login_at', 'searchModel' => $searchModel, 'editable' => false]),
             ColumnSelect2::widget(
                 ['attr' => 'status', 'items' => Status::class, 'hideSearch' => true, 'width' => 120]
@@ -85,7 +85,8 @@ $this->params['layout_class'] = 'container-fluid';
 
             [
                 'class' => GroupedActionColumn::class,
-                'template' => '{view} {mail} {delete}',
+                'template' => '{view} {delete}',
+/*                'template' => '{view} {mail} {delete}',
                 'buttons' => [
                     'mail' => static function ($url, User $model) {
                         if ($model->email && !$model->email->is_confirmed) {
@@ -97,7 +98,7 @@ $this->params['layout_class'] = 'container-fluid';
                         }
                         return null;
                     }
-                ]
+                ]*/
             ]
         ]
     ]) ?>

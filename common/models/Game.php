@@ -3,6 +3,9 @@
 namespace common\models;
 
 use common\models\AppActiveRecord;
+use common\modules\user\models\User;
+use OpenApi\Attributes\Property;
+use OpenApi\Attributes\Schema;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
@@ -19,6 +22,13 @@ use yii\helpers\ArrayHelper;
  *
  * @property-read User     $user
  */
+#[Schema(properties: [
+    new Property(property: 'start', type: 'integer'),
+    new Property(property: 'end', type: 'integer'),
+    new Property(property: 'points', type: 'integer'),
+    new Property(property: 'user', type: 'string'),
+    new Property(property: 'status', type: 'string'),
+])]
 class Game extends AppActiveRecord
 {
     /**
@@ -53,6 +63,17 @@ class Game extends AppActiveRecord
             'points' => Yii::t('app', 'Points'),
             'user_id' => Yii::t('app', 'User ID'),
             'status' => Yii::t('app', 'Status'),
+        ];
+    }
+
+    public function fields()
+    {
+        return [
+            'start',
+            'end',
+            'points',
+            'user' => fn () => $this->user->username,
+            'status',
         ];
     }
 

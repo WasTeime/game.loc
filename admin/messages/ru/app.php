@@ -21,6 +21,7 @@ return [
 
     //General
     'Id' => 'ID',
+    'UID' => 'Идентификатор пользователя',
     'Type' => 'Тип',
     'Submit' => 'Отправить',
     'Name' => 'Имя',
@@ -169,4 +170,22 @@ return [
     'Download Link' => 'Ссылка на скачивание',
     'Count' => 'Кол-во',
     'Date' => 'Дата',
+
+    //Game
+        //props
+    'Start' => 'Старт',
+    'End' => 'Конец',
+    'Points' => 'Очки',
+        //view
+    'Create Game' => 'Создать игру',
+    'Update Game' => 'Обновить игру',
+    'Games' => 'Игры',
+
+    //Rating
+        //props
+    'Max points' => 'Очки',
+        //view
+    'Ratings' => 'Рейтинг',
+        //other
+    'Rating Logs' => 'Логи рейтинга',
 ];

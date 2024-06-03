@@ -4,12 +4,14 @@ namespace common\modules\user\models;
 
 use common\components\export\ExportConfig;
 use common\models\AppActiveRecord;
+use common\models\Setting;
 use common\modules\user\{enums\Status, Module};
 use OpenApi\Attributes as OA;
 use Yii;
 use yii\base\Exception;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\BaseActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\web\IdentityInterface;
 
@@ -29,6 +31,9 @@ use yii\web\IdentityInterface;
  * @property int                  $updated_at           [int] Дата изменения
  * @property int                  $status               [int] Статус
  * @property int                  $last_ip              [bigint] Последний IP адрес
+ * @property int                  $attempts             [int] Попытки пользователя
+ * @property int                  $attempt_updated_at   [int] Дата последнего обновления попыток
+ * @property string               $uid                  [varchar(12)] UID пользователя
  *
  * @property-read array           $profile
  *
@@ -69,10 +74,12 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
     ])]
     final public function getProfile(): array
     {
+        $this->calcAttempts();
         return [
             'id' => $this->id,
             'access_token' => $this->authKey,
             'username' => $this->username,
+            'attempts' => $this->attempts,
             'email' => $this->email->value ?? null,
             'is_email_confirmed' => (bool)($this->email->is_confirmed ?? null)
         ];
@@ -85,9 +92,39 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
     {
         return ArrayHelper::merge(parent::behaviors(), [
             'timestamp' => [
-                'class' => TimestampBehavior::class
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    BaseActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at', 'attempt_updated_at'],
+                    BaseActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at',
+                ]
             ]
         ]);
+    }
+
+    public function calcAttempts()
+    {
+        if ($this->attempt_updated_at < strtotime('today')) {
+            $this->attempts = (int)Setting::getParameterValue('attempts');
+            $this->attempt_updated_at = time();
+            $this->save();
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function grabAttempt() : bool
+    {
+        if ($this->attempts > 0) {
+            if (!$this->attempts === (int)Setting::getParameterValue('attempts')) {
+                $this->attempt_updated_at = time();
+            }
+            $this->attempts--;
+            $this->save();
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -163,6 +200,33 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
     final public function generateUsername(): void
     {
         $this->username = 'User_' . Yii::$app->security->generateRandomString(8) . time();
+    }
+
+    /**
+     * Сгенерировать случайный пароль (если испоьзуется uid)
+     *
+     * @throws Exception
+     */
+    final public function generatePassword() : void
+    {
+        $this->password = Yii::$app->security->generateRandomString(8) . time();
+    }
+
+    final public function generateUID() : void
+    {
+        $dictionary = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $uid_length = 12;
+        $uid = '';
+
+        for ($i = 0; $i < $uid_length; $i++) {
+            $uid .= $dictionary[rand(0, strlen($dictionary))];
+        }
+        $this->uid = $uid;
+    }
+
+    public static function findByUID(string $uid) : User|null
+    {
+        return self::findOne(['uid' => $uid]);
     }
 
     final public function getEmail(): ActiveQuery

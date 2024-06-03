@@ -2,6 +2,7 @@
 
 namespace common\modules\user\actions;
 
+use common\models\SignUpUidForm;
 use api\behaviors\returnStatusBehavior\{JsonError, JsonSuccess, RequestFormData};
 use common\components\exceptions\ModelSaveException;
 use common\models\SignupForm;
@@ -99,6 +100,16 @@ class SignupAction extends BaseAction
         }
         $form = new SignupForm();
         $form->load(Yii::$app->request->post(), '');
+        if (!$user = $form->signup()) {
+            return $this->controller->returnError('Validation error', $form->errors);
+        }
+
+        return $this->controller->returnSuccess(UserHelper::getProfile($user), 'profile');
+    }
+
+    private function uidSignUp() : array
+    {
+        $form = new SignUpUidForm();
         if (!$user = $form->signup()) {
             return $this->controller->returnError('Validation error', $form->errors);
         }

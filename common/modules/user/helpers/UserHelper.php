@@ -59,7 +59,31 @@ class UserHelper
             }
             $profile = $user->profile;
         }
+
         return $profile;
+    }
+
+    /**
+     * Создание пользователя, используя uid
+     *
+     * @throws ModelSaveException
+     * @throws \yii\base\Exception
+     */
+    public static function createNewUserByUid(string $uid): User
+    {
+        $user = new User();
+
+        $user->generateUsername();
+        $user->generatePassword();
+        $user->uid = $uid;
+        $user->status = Status::Active->value;
+        $user->last_login_at = time();
+        if (!$user->save()) {
+            throw new ModelSaveException($user);
+        }
+        $user->refresh();
+
+        return $user;
     }
 
     /**
