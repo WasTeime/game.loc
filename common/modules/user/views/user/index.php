@@ -33,17 +33,6 @@ $this->params['layout_class'] = 'container-fluid';
                 'batchSize' => 100
             ]) ?>
         </div>
-        <div class="col-auto">
-            <p>
-                <?php if (Yii::$app->getModule('user')->enableSocAuthorization) {
-                    echo RbacHtml::a(
-                        Yii::t(Module::MODULE_MESSAGES, 'View User Social Networks'),
-                        ['social-network/index'],
-                        ['class' => 'btn btn-success']
-                    );
-                } ?>
-            </p>
-        </div>
     </div>
     <?= SortableGridView::widget([
         'dataProvider' => $dataProvider,
@@ -52,8 +41,10 @@ $this->params['layout_class'] = 'container-fluid';
         'columns' => [
             ['class' => SerialColumn::class],
 
-            Column::widget(),
+//            Column::widget(),
             Column::widget(['attr' => 'username', 'editable' => false]),
+            Column::widget(['attr' => 'uid', 'editable' => false]),
+            Column::widget(['attr' => 'attempts', 'editable' => false]),
 /*            Column::widget(['attr' => 'auth_source', 'editable' => false, 'width' => 170]),
             Column::widget(['attr' => 'userExt.first_name', 'editable' => false]),
             Column::widget(['attr' => 'userExt.last_name', 'editable' => false]),
@@ -79,10 +70,9 @@ $this->params['layout_class'] = 'container-fluid';
             ],
             ColumnSwitch::widget(['attr' => 'email.is_confirmed', 'editable' => false]),*/
             ColumnDate::widget(['attr' => 'last_login_at', 'searchModel' => $searchModel, 'editable' => false]),
-            ColumnSelect2::widget(
+/*            ColumnSelect2::widget(
                 ['attr' => 'status', 'items' => Status::class, 'hideSearch' => true, 'width' => 120]
-            ),
-
+            ),*/
             [
                 'class' => GroupedActionColumn::class,
                 'template' => '{view} {delete}',

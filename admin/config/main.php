@@ -90,7 +90,7 @@ return [
             'identityClass' => UserAdmin::class,
             'enableSession' => true,
             'enableAutoLogin' => true,
-            'loginUrl' => ['/site/login-uid'],
+            'loginUrl' => ['/site/login'],
             'identityCookie' => ['name' => '_identity-admin', 'httpOnly' => true, 'path' => $basePath . $module]
         ],
 

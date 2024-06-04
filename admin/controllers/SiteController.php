@@ -6,6 +6,8 @@ use admin\components\actions\AppErrorAction;
 use admin\models\LoginForm;
 use admin\models\LoginUIDForm;
 use common\models\AppModel;
+use common\modules\user\helpers\UserHelper;
+use common\modules\user\models\User;
 use common\widgets\ProgressAction;
 use JsonException;
 use RequirementChecker;
@@ -111,20 +113,6 @@ final class SiteController extends AdminController
             return $this->redirect(Yii::$app->request->referrer);
         }
         return $this->render('login', ['model' => $model]);
-    }
-
-    public function actionLoginUid() : Response|string
-    {
-
-        /*if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = $loginForm;
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->redirect(Yii::$app->request->referrer);
-        }
-        return $this->render($view, ['model' => $model]);*/
     }
 
     /**

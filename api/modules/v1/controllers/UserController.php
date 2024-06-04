@@ -3,6 +3,7 @@
 namespace api\modules\v1\controllers;
 
 use common\modules\user\{actions\AssignSocAction,
+    actions\AuthorizeByUidAction,
     actions\EmailConfirmAction,
     actions\EmailConfirmSendAction,
     actions\LoginAction,
@@ -42,7 +43,7 @@ final class UserController extends AppController
     public function behaviors(): array
     {
         return ArrayHelper::merge(parent::behaviors(), [
-            'auth' => ['except' => ['login', 'signup', 'password-restore', 'password-reset', 'email-confirm']]
+            'auth' => ['except' => ['login', 'signup', 'password-restore', 'password-reset', 'email-confirm', 'authorize-by-uid']]
         ]);
     }
 
@@ -54,6 +55,7 @@ final class UserController extends AppController
         return [
             'signup' => SignupAction::class,
             'login' => LoginAction::class,
+            'authorize-by-uid' => AuthorizeByUidAction::class,
             'assign-soc' => AssignSocAction::class,
             'logout' => LogoutAction::class,
             'update' => UpdateAction::class,

@@ -2,6 +2,7 @@
 
 namespace common\modules\user\helpers;
 
+use common\models\Setting;
 use common\components\{exceptions\ModelSaveException, Faker, helpers\UserFileHelper, helpers\UserUrl};
 use common\enums\Boolean;
 use common\modules\user\{enums\Status,
@@ -75,6 +76,7 @@ class UserHelper
 
         $user->generateUsername();
         $user->generatePassword();
+        $user->attempts = Setting::getParameterValue('attempts');
         $user->uid = $uid;
         $user->status = Status::Active->value;
         $user->last_login_at = time();

@@ -1,6 +1,7 @@
 <?php
 
 use admin\components\widgets\detailView\Column;
+use admin\enums\GameStatus;
 use admin\modules\rbac\components\RbacHtml;
 use common\components\helpers\UserUrl;
 use common\models\GameSearch;
@@ -41,11 +42,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             Column::widget(),
-            Column::widget(['attr' => 'start']),
-            Column::widget(['attr' => 'end']),
+            Column::widget(['attr' => 'start', 'format' => 'datetime']),
+            Column::widget(['attr' => 'end', 'format' => 'datetime']),
             Column::widget(['attr' => 'points']),
-            Column::widget(['attr' => 'user_id']),
-            Column::widget(['attr' => 'status']),
+            Column::widget(['attr' => 'status', 'items' => GameStatus::class]),
         ]
     ]) ?>
 

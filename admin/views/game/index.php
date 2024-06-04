@@ -2,6 +2,8 @@
 
 use admin\components\GroupedActionColumn;
 use admin\components\widgets\gridView\Column;
+use admin\components\widgets\gridView\ColumnSelect2;
+use admin\enums\GameStatus;
 use admin\modules\rbac\components\RbacHtml;
 use admin\widgets\sortableGridView\SortableGridView;
 use kartik\grid\SerialColumn;
@@ -21,12 +23,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= RbacHtml::encode($this->title) ?></h1>
 
-    <div>
+<!--    <div>
         <?=
             RbacHtml::a(Yii::t('app', 'Create Game'), ['create'], ['class' => 'btn btn-success']);
 //           $this->render('_create_modal', ['model' => $model]);
         ?>
-    </div>
+    </div>-->
 
     <?= SortableGridView::widget([
         'dataProvider' => $dataProvider,
@@ -36,11 +38,11 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => SerialColumn::class],
 
 //            Column::widget(),
-            Column::widget(['attr' => 'start']),
-            Column::widget(['attr' => 'end']),
-            Column::widget(['attr' => 'points']),
-//            Column::widget(['attr' => 'user_id']),
-            Column::widget(['attr' => 'status']),
+            Column::widget(['attr' => 'start', 'editable' => false, 'format' => 'datetime']),
+            Column::widget(['attr' => 'end', 'editable' => false, 'format' => 'datetime']),
+            Column::widget(['attr' => 'points', 'editable' => false]),
+            Column::widget(['attr' => 'user_id', 'editable' => false]),
+            ColumnSelect2::widget(['attr' => 'status', 'editable' => false, 'items' => GameStatus::class, 'hideSearch' => true]),
 
             ['class' => GroupedActionColumn::class]
         ]

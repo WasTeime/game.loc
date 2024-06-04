@@ -70,13 +70,15 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
         new OA\Property(property: 'access_token', description: 'Bearer Токен доступа к API', type: 'string'),
         new OA\Property(property: 'username', description: 'Никнейм', type: 'string'),
         new OA\Property(property: 'email', description: 'E-mail адрес', type: 'string'),
-        new OA\Property(property: 'is_email_confirmed', description: 'Подтвержден ли адрес', type: 'boolean')
+        new OA\Property(property: 'is_email_confirmed', description: 'Подтвержден ли адрес', type: 'boolean'),
+        new OA\Property(property: 'uid', description: 'Идентификатор пользователя', type: 'string'),
     ])]
     final public function getProfile(): array
     {
         $this->calcAttempts();
         return [
             'id' => $this->id,
+            'uid' => $this->uid,
             'access_token' => $this->authKey,
             'username' => $this->username,
             'attempts' => $this->attempts,
@@ -173,7 +175,10 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
             'created_at' => Yii::t(Module::MODULE_MESSAGES, 'Created At'),
             'updated_at' => Yii::t(Module::MODULE_MESSAGES, 'Updated At'),
             'status' => Yii::t(Module::MODULE_MESSAGES, 'Status'),
-            'last_ip' => Yii::t(Module::MODULE_MESSAGES, 'Last Ip')
+            'last_ip' => Yii::t(Module::MODULE_MESSAGES, 'Last Ip'),
+            'attempt_updated_at' => Yii::t(Module::MODULE_MESSAGES, 'Attempt Updated'),
+            'attempts' => Yii::t(Module::MODULE_MESSAGES, 'Attempts'),
+            'uid' => Yii::t(Module::MODULE_MESSAGES, 'UID'),
         ];
     }
 
@@ -212,7 +217,7 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
         $this->password = Yii::$app->security->generateRandomString(8) . time();
     }
 
-    final public function generateUID() : void
+    final public static function generateUID() : string
     {
         $dictionary = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         $uid_length = 12;
@@ -221,10 +226,10 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
         for ($i = 0; $i < $uid_length; $i++) {
             $uid .= $dictionary[rand(0, strlen($dictionary))];
         }
-        $this->uid = $uid;
+        return $uid;
     }
 
-    public static function findByUID(string $uid) : User|null
+    public static function findByUID(?string $uid) : User|null
     {
         return self::findOne(['uid' => $uid]);
     }

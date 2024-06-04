@@ -50,10 +50,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             Column::widget(),
+            Column::widget(['attr' => 'uid']),
+            Column::widget(['attr' => 'attempts']),
             Column::widget(['attr' => 'username']),
-            Column::widget(['attr' => 'auth_source']),
+//            Column::widget(['attr' => 'auth_source']),
             Column::widget(['attr' => 'status', 'items' => Status::class]),
-            Column::widget(['attr' => 'userExt.first_name']),
+/*            Column::widget(['attr' => 'userExt.first_name']),
             Column::widget(['attr' => 'userExt.middle_name']),
             Column::widget(['attr' => 'userExt.last_name']),
             Column::widget(['attr' => 'userExt.phone', 'format' => 'phone']),
@@ -72,14 +74,15 @@ $this->params['breadcrumbs'][] = $this->title;
                 ),
                 'format' => 'raw'
             ],
-            Column::widget(['attr' => 'email.is_confirmed', 'items' => Boolean::class]),
+            Column::widget(['attr' => 'email.is_confirmed', 'items' => Boolean::class]),*/
             Column::widget(['attr' => 'last_login_at', 'format' => 'datetime']),
             Column::widget(['attr' => 'created_at', 'format' => 'datetime']),
             Column::widget(['attr' => 'updated_at', 'format' => 'datetime']),
-            [
+            Column::widget(['attr' => 'attempt_updated_at', 'format' => 'datetime']),
+/*            [
                 'attribute' => 'last_ip',
-                'value' => static fn (User $model) => long2ip($model->last_ip)
-            ]
+                'value' => static fn (User $model) => $model->last_ip == null ? null : long2ip($model->last_ip)
+            ],*/
         ]
     ]) ?>
 
