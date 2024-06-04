@@ -124,6 +124,7 @@ class GameController extends AppController
     ])]
     public function actionTestRating()
     {
+        set_time_limit(0);
         for ($i = 0; $i < 2000; $i++) {
             $user = UserHelper::createNewUserByUid(User::generateUID());
             Game::startGame($user);
