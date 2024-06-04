@@ -33,7 +33,7 @@ class AuthorizeByUidAction extends BaseAction
 
         $this->_user = User::findByUID($uid);
         if ($this->_user == null) {
-            $this->_user = UserHelper::createNewUserByUid(User::generateUID());
+            $this->_user = UserHelper::createNewUserByUid($uid);
         }
 
         Yii::$app->user->login($this->_user);

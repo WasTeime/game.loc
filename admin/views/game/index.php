@@ -8,6 +8,7 @@ use admin\enums\GameStatus;
 use admin\modules\rbac\components\RbacHtml;
 use admin\widgets\sortableGridView\SortableGridView;
 use kartik\grid\SerialColumn;
+use yii\helpers\Url;
 use yii\widgets\ListView;
 
 /**
@@ -41,10 +42,20 @@ $this->params['breadcrumbs'][] = $this->title;
 //            Column::widget(),
             ColumnDate::widget(['attr' => 'start', 'searchModel' => $searchModel, 'editable' => false]),
             ColumnDate::widget(['attr' => 'end', 'searchModel' => $searchModel, 'editable' => false]),
+            Column::widget(['attr' => 'duration', 'editable' => false, 'format' => 'duration']),
             Column::widget(['attr' => 'points', 'editable' => false]),
-            Column::widget(['attr' => 'user', 'editable' => false]),
+            ColumnSelect2::widget([
+                'attr' => 'user_id',
+                'viewAttr' => 'user.username',
+                'pathLink' => 'user/user',
+                'editable' => false,
+                'placeholder' => Yii::t('app', 'Search...'),
+                'ajaxSearchConfig' => [
+                    'url' => Url::to(['/user/user/list']),
+                    'searchModel' => $searchModel
+                ]
+            ]),
             ColumnSelect2::widget(['attr' => 'status', 'editable' => false, 'items' => GameStatus::class, 'hideSearch' => true]),
-
             [
                 'class' => GroupedActionColumn::class,
                 'template' => '{view} {delete}'

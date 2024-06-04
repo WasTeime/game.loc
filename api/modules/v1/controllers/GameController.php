@@ -2,14 +2,17 @@
 
 namespace api\modules\v1\controllers;
 
-use admin\enums\GameStatus;
 use api\behaviors\returnStatusBehavior\JsonSuccess;
 use api\behaviors\returnStatusBehavior\RequestFormData;
+use common\components\exceptions\ModelSaveException;
 use common\models\Game;
-use common\models\Rating;
+use common\modules\user\helpers\UserHelper;
 use common\modules\user\models\User;
 use OpenApi\Attributes as OA;
+use PHPUnit\Exception;
+use Random\RandomException;
 use Yii;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
 class GameController extends AppController
@@ -19,12 +22,11 @@ class GameController extends AppController
      */
     public $modelClass = Game::class;
 
-    /**
-     * {@inheritdoc}
-     */
     public function behaviors(): array
     {
-        return ArrayHelper::merge(parent::behaviors(), ['auth' => ['except' => ['start', 'stop']]]);
+        return ArrayHelper::merge(parent::behaviors(), [
+            'auth' => ['except' => ['test-rating', 'test-games-for-users']],
+        ]);
     }
 
     /**
@@ -38,12 +40,6 @@ class GameController extends AppController
         security: [['bearerAuth' => []]],
         tags: ['game']
     )]
-    #[RequestFormData(
-        requiredProps: ['uid'],
-        properties: [
-            new OA\Property(property: 'uid', description: 'UID пользователя', type: 'string'),
-        ]
-    )]
     #[JsonSuccess(content: [
         new OA\Property(
             property: 'game', type: 'array',
@@ -52,28 +48,7 @@ class GameController extends AppController
     ])]
     public function actionStart(): array
     {
-        $uid = Yii::$app->request->post('uid');
-        $user = User::findByUID($uid);
-        $user->grabAttempt();
-
-        $gamesInProcess = Game::find()
-            ->where(['user_id' => $user->id])
-            ->andWhere(['status' => GameStatus::InProcess->value])
-            ->orderBy(['id' => SORT_DESC])
-            ->all();
-
-        foreach ($gamesInProcess as $game) {
-            $game->status = GameStatus::Abandon->value;
-            $game->save();
-        }
-
-        $game = new Game();
-        $game->start = time();
-        $game->user_id = $user->id;
-        $game->status = GameStatus::InProcess->value;
-        $game->save();
-
-        return $this->returnSuccess($game, 'game');
+        return $this->returnSuccess(Game::startGame(Yii::$app->user->identity), 'game');
     }
 
     #[OA\Post(
@@ -85,9 +60,9 @@ class GameController extends AppController
         tags: ['game']
     )]
     #[RequestFormData(
-        requiredProps: ['uid'],
+        requiredProps: ['points'],
         properties: [
-            new OA\Property(property: 'uid', description: 'UID пользователя', type: 'string'),
+            new OA\Property(property: 'points', description: 'Очки за игру', type: 'integer'),
         ]
     )]
     #[JsonSuccess(content: [
@@ -98,27 +73,91 @@ class GameController extends AppController
     ])]
     public function actionStop(): array
     {
-        $uid = Yii::$app->request->post('uid');
-        $user = User::findByUID($uid);
-
-        $game = Game::find()
-            ->where(['user_id' => $user->id])
-            ->andWhere(['status' => GameStatus::InProcess->value])
-            ->orderBy(['id' => SORT_DESC])
-            ->one();
-
-        if ($game == null) {
-            return $this->returnError('Активных игр нет');
+        try {
+            $game = Game::stopGame(Yii::$app->user->identity, (int)Yii::$app->request->post('points'));
+        } catch (Exception $e) {
+            return $this->returnError($e->getMessage());
         }
 
-        //завершаем последнюю игру
-        $game->end = time();
-        $game->status = GameStatus::Finished->value;
-        $game->points = $user->attempts == 0 ? 0 : 100;
-        $game->save();
-
-        Rating::updateUserRating($uid, $game->points);
-
         return $this->returnSuccess($game, 'game');
+    }
+
+    #[OA\Post(
+        path: '/game/test',
+        operationId: 'game-test',
+        summary: 'Много игр у пользователя',
+        security: [['bearerAuth' => []]],
+        tags: ['game']
+    )]
+    #[JsonSuccess(content: [
+        new OA\Property(
+            property: 'game', type: 'array',
+            items: new OA\Items('#/components/schemas/Game'),
+        )
+    ])]
+    public function actionTest()
+    {
+        $user = Yii::$app->user->identity;
+        for ($i = 0; $i < 2000; $i++) {
+            Game::startGame($user);
+            Game::stopGame($user, random_int(50, 100));
+        }
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     * @throws ModelSaveException
+     * @throws RandomException
+     */
+    #[OA\Post(
+        path: '/game/test-rating',
+        operationId: 'game-test-rating',
+        summary: 'Много пользователей с играми',
+        security: [['bearerAuth' => []]],
+        tags: ['game']
+    )]
+    #[JsonSuccess(content: [
+        new OA\Property(
+            property: 'game', type: 'array',
+            items: new OA\Items('#/components/schemas/Game'),
+        )
+    ])]
+    public function actionTestRating()
+    {
+        for ($i = 0; $i < 2000; $i++) {
+            $user = UserHelper::createNewUserByUid(User::generateUID());
+            Game::startGame($user);
+            Game::stopGame($user, random_int(50, 100));
+        }
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     * @throws ModelSaveException
+     * @throws RandomException
+     */
+    #[OA\Post(
+        path: '/game/test-games-for-users',
+        operationId: 'game-test-points',
+        summary: 'Много игр у пользователей',
+        security: [['bearerAuth' => []]],
+        tags: ['game']
+    )]
+    #[JsonSuccess(content: [
+        new OA\Property(
+            property: 'game', type: 'array',
+            items: new OA\Items('#/components/schemas/Game'),
+        )
+    ])]
+    public function actionTestGamesForUsers()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $user = User::find()->orderBy(new Expression('rand()'))->one();
+            for ($i = 0; $i < 4; $i++) {
+                Game::startGame($user);
+                sleep(1);
+                Game::stopGame($user, random_int(50, 100));
+            }
+        }
     }
 }

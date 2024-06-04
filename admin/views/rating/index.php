@@ -3,9 +3,11 @@
 use admin\components\GroupedActionColumn;
 use admin\components\widgets\gridView\Column;
 use admin\components\widgets\gridView\ColumnDate;
+use admin\components\widgets\gridView\ColumnSelect2;
 use admin\modules\rbac\components\RbacHtml;
 use admin\widgets\sortableGridView\SortableGridView;
 use kartik\grid\SerialColumn;
+use yii\helpers\Url;
 use yii\widgets\ListView;
 
 /**
@@ -21,12 +23,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= RbacHtml::encode($this->title) ?></h1>
 
-<!--    <div>
-        <?=
-            RbacHtml::a(Yii::t('app', 'Create Rating'), ['create'], ['class' => 'btn btn-success']);
-//           $this->render('_create_modal', ['model' => $model]);
-        ?>
-    </div>-->
 
     <?= SortableGridView::widget([
         'dataProvider' => $dataProvider,
@@ -36,14 +32,23 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => SerialColumn::class],
 
 //            Column::widget(),
-            Column::widget(['attr' => 'user', 'editable' => false]),
+            ColumnSelect2::widget([
+                'attr' => 'user_id',
+                'viewAttr' => 'user.username',
+                'pathLink' => 'user/user',
+                'editable' => false,
+                'placeholder' => Yii::t('app', 'Search...'),
+                'ajaxSearchConfig' => [
+                    'url' => Url::to(['/user/user/list']),
+                    'searchModel' => $searchModel
+                ]
+            ]),
             Column::widget(['attr' => 'max_points', 'editable' => false]),
             ColumnDate::widget(['attr' => 'updated_at', 'searchModel' => $searchModel, 'editable' => false]),
-
-            [
+            /*[
                 'class' => GroupedActionColumn::class,
                 'template' => '{view} {delete}'
-            ]
+            ]*/
         ]
     ]) ?>
 </div>

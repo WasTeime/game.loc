@@ -2,8 +2,10 @@
 
 namespace common\models;
 
+use admin\enums\GameStatus;
 use common\models\AppActiveRecord;
 use common\modules\user\models\User;
+use Exception;
 use OpenApi\Attributes\Property;
 use OpenApi\Attributes\Schema;
 use Yii;
@@ -21,6 +23,7 @@ use yii\helpers\ArrayHelper;
  * @property int           $status
  *
  * @property-read User     $user
+ * @property-read int      $duration
  */
 #[Schema(properties: [
     new Property(property: 'start', type: 'integer'),
@@ -31,6 +34,54 @@ use yii\helpers\ArrayHelper;
 ])]
 class Game extends AppActiveRecord
 {
+    final static public function startGame(User $user) : Game
+    {
+        $user->grabAttempt();
+
+        Yii::$app->db->createCommand()
+            ->update(
+                Game::tableName(),
+                ['status' => GameStatus::Abandon->value],
+                ['status' => GameStatus::InProcess->value, 'user_id' => $user->id]
+            )
+            ->execute();
+
+        $game = new Game();
+        $game->start = time();
+        $game->user_id = $user->id;
+        $game->status = GameStatus::InProcess->value;
+        $game->save();
+
+        return $game;
+    }
+
+    /**
+     * @throws Exception
+     */
+    final static public function stopGame(User $user, int $points)
+    {
+        $game = Game::find()
+            ->where(['user_id' => $user->id])
+            ->andWhere(['status' => GameStatus::InProcess->value])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+
+        if ($game == null) {
+            throw new Exception('Активных игр нету');
+        }
+
+        //завершаем последнюю игру
+        $game->end = time();
+        $game->status = GameStatus::Finished->value;
+        $game->points = $user->attempts == 0 ? 0 : $points;
+        $game->save();
+
+        Rating::updateUserRating($user->id, $game->points);
+
+        return $game;
+    }
+
+
     /**
      * {@inheritdoc}
      */
@@ -63,7 +114,16 @@ class Game extends AppActiveRecord
             'points' => Yii::t('app', 'Points'),
             'user_id' => Yii::t('app', 'User ID'),
             'status' => Yii::t('app', 'Status'),
+            'duration' => Yii::t('app', 'Duration'),
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function externalAttributes(): array
+    {
+        return ['user.username'];
     }
 
     public function fields()
@@ -72,7 +132,6 @@ class Game extends AppActiveRecord
             'start',
             'end',
             'points',
-            'user',
             'status',
         ];
     }
@@ -80,5 +139,10 @@ class Game extends AppActiveRecord
     final public function getUser(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
+    final public function getDuration() : ?int
+    {
+        return $this->end == null ? null : $this->end - $this->start;
     }
 }

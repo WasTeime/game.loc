@@ -225,7 +225,7 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
         $uid = '';
 
         for ($i = 0; $i < $uid_length; $i++) {
-            $uid .= $dictionary[rand(0, strlen($dictionary))];
+            $uid .= $dictionary[rand(0, strlen($dictionary) - 1)];
         }
         return $uid;
     }
@@ -257,10 +257,9 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
         return $socialNetwork;
     }
 
-    final static public function isGamesExist($uid)
+    final public function isGamesExist()
     {
-        $id = User::findByUID($uid)->id;
-        return Game::find()->where(['user_id' => $id])->exists(); //$this->id
+        return Game::find()->where(['user_id' => $this->id])->exists();
     }
 
     public static function getColumns(): array

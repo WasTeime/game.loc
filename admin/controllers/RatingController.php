@@ -49,6 +49,7 @@ final class RatingController extends AdminController
     {
         $searchModel = new RatingSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->sort->defaultOrder = ['max_points' => SORT_DESC, 'updated_at' => SORT_ASC];
         $dataProvider->pagination->pageSize = self::PAGE_SIZE;
 
         return $this->render(

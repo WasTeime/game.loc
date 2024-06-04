@@ -75,6 +75,14 @@ class Rating extends AppActiveRecord
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public static function externalAttributes(): array
+    {
+        return ['user.username'];
+    }
+
     public function fields()
     {
         return [
@@ -84,14 +92,13 @@ class Rating extends AppActiveRecord
         ];
     }
 
-    final static public function updateUserRating(string $uid, float $points)
+    final static public function updateUserRating(string $id, float $points)
     {
-       $user = User::findByUID($uid);
-       $userRating = Rating::find()->where(['user_id' => $user->id])->one();
+       $userRating = Rating::find()->where(['user_id' => $id])->one();
 
        if ($userRating === null) {
             $rating = new Rating();
-            $rating->user_id = $user->id;
+            $rating->user_id = $id;
             $rating->max_points = $points;
             $rating->save();
        } else {

@@ -81,13 +81,10 @@ $this->params['layout_class'] = 'container-fluid';
                 'template' => '{view} {games} {delete}',
                 'buttons' => [
                     'games' => static function ($url, User $model, $key) {
-                        if ($model::isGamesExist($model->uid)) {
+                        if ($model->isGamesExist()) {
                             return RbacHtml::a(
                                 Icon::show('envelope'),
-                                UserUrl::setFilters(
-                                    GameSearch::class,
-                                    ['/game/index', 'GameSearch' => ['user_id' => $model->id]]
-                                ),
+                                ['/game/index', 'GameSearch' => ['user_id' => $model->id]],
                                 ['data-pjax' => 0]
                             );
                         }

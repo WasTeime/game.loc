@@ -175,6 +175,7 @@ return [
     'Start' => 'Старт',
     'End' => 'Конец',
     'Points' => 'Очки',
+    'Duration' => 'Длительность',
         //view
     'Create Game' => 'Создать игру',
     'Update Game' => 'Обновить игру',
