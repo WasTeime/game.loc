@@ -182,7 +182,7 @@ return [
 
     //Rating
         //props
-    'Max points' => 'Очки',
+    'Max Points' => 'Очки',
         //view
     'Ratings' => 'Рейтинг',
         //other

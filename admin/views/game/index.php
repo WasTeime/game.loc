@@ -2,6 +2,7 @@
 
 use admin\components\GroupedActionColumn;
 use admin\components\widgets\gridView\Column;
+use admin\components\widgets\gridView\ColumnDate;
 use admin\components\widgets\gridView\ColumnSelect2;
 use admin\enums\GameStatus;
 use admin\modules\rbac\components\RbacHtml;
@@ -38,13 +39,16 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => SerialColumn::class],
 
 //            Column::widget(),
-            Column::widget(['attr' => 'start', 'editable' => false, 'format' => 'datetime']),
-            Column::widget(['attr' => 'end', 'editable' => false, 'format' => 'datetime']),
+            ColumnDate::widget(['attr' => 'start', 'searchModel' => $searchModel, 'editable' => false]),
+            ColumnDate::widget(['attr' => 'end', 'searchModel' => $searchModel, 'editable' => false]),
             Column::widget(['attr' => 'points', 'editable' => false]),
-            Column::widget(['attr' => 'user_id', 'editable' => false]),
+            Column::widget(['attr' => 'user', 'editable' => false]),
             ColumnSelect2::widget(['attr' => 'status', 'editable' => false, 'items' => GameStatus::class, 'hideSearch' => true]),
 
-            ['class' => GroupedActionColumn::class]
+            [
+                'class' => GroupedActionColumn::class,
+                'template' => '{view} {delete}'
+            ]
         ]
     ]) ?>
 </div>

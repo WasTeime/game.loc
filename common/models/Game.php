@@ -72,7 +72,7 @@ class Game extends AppActiveRecord
             'start',
             'end',
             'points',
-            'user' => fn () => $this->user->username,
+            'user',
             'status',
         ];
     }

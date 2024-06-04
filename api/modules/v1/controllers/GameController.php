@@ -6,11 +6,11 @@ use admin\enums\GameStatus;
 use api\behaviors\returnStatusBehavior\JsonSuccess;
 use api\behaviors\returnStatusBehavior\RequestFormData;
 use common\models\Game;
+use common\models\Rating;
 use common\modules\user\models\User;
 use OpenApi\Attributes as OA;
 use Yii;
 use yii\helpers\ArrayHelper;
-use yii\web\Response;
 
 class GameController extends AppController
 {
@@ -56,12 +56,17 @@ class GameController extends AppController
         $user = User::findByUID($uid);
         $user->grabAttempt();
 
-        $lastRecord = Game::find()->where(['user_id' => $user->id])->orderBy(['id' => SORT_DESC])->one();
+        $gamesInProcess = Game::find()
+            ->where(['user_id' => $user->id])
+            ->andWhere(['status' => GameStatus::InProcess->value])
+            ->orderBy(['id' => SORT_DESC])
+            ->all();
 
-        if ($lastRecord != null && $lastRecord->status == GameStatus::InProcess->value) {
-            $lastRecord->status = GameStatus::Abandon->value;
-            $lastRecord->save();
+        foreach ($gamesInProcess as $game) {
+            $game->status = GameStatus::Abandon->value;
+            $game->save();
         }
+
         $game = new Game();
         $game->start = time();
         $game->user_id = $user->id;
@@ -95,13 +100,24 @@ class GameController extends AppController
     {
         $uid = Yii::$app->request->post('uid');
         $user = User::findByUID($uid);
-        $isAttemptGrabbed = $user->grabAttempt();
 
-        $game = Game::find()->where(['user_id' => $user->id])->orderBy(['id' => SORT_DESC])->one();
+        $game = Game::find()
+            ->where(['user_id' => $user->id])
+            ->andWhere(['status' => GameStatus::InProcess->value])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+
+        if ($game == null) {
+            return $this->returnError('Активных игр нет');
+        }
+
+        //завершаем последнюю игру
         $game->end = time();
         $game->status = GameStatus::Finished->value;
         $game->points = $user->attempts == 0 ? 0 : 100;
         $game->save();
+
+        Rating::updateUserRating($uid, $game->points);
 
         return $this->returnSuccess($game, 'game');
     }

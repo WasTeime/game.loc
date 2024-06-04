@@ -23,6 +23,8 @@ use yii\web\Response;
  */
 final class GameController extends AdminController
 {
+    const PAGE_SIZE = 10;
+
     /**
      * {@inheritdoc}
      */
@@ -46,18 +48,13 @@ final class GameController extends AdminController
      */
     public function actionIndex(): string
     {
-        $model = new Game();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', "Элемент №$model->id создан успешно");
-        }
-
         $searchModel = new GameSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->pagination->pageSize = self::PAGE_SIZE;
 
         return $this->render(
             'index',
-            ['searchModel' => $searchModel, 'dataProvider' => $dataProvider, 'model' => $model]
+            ['searchModel' => $searchModel, 'dataProvider' => $dataProvider]
         );
     }
 

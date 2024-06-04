@@ -4,6 +4,7 @@ namespace common\modules\user\models;
 
 use common\components\export\ExportConfig;
 use common\models\AppActiveRecord;
+use common\models\Game;
 use common\models\Setting;
 use common\modules\user\{enums\Status, Module};
 use OpenApi\Attributes as OA;
@@ -254,6 +255,12 @@ class User extends AppActiveRecord implements IdentityInterface, ExportConfig
         /** @var SocialNetwork|null $socialNetwork */
         $socialNetwork = $this->getSocialNetworks()->where(['social_network_id' => $id])->one();
         return $socialNetwork;
+    }
+
+    final static public function isGamesExist($uid)
+    {
+        $id = User::findByUID($uid)->id;
+        return Game::find()->where(['user_id' => $id])->exists(); //$this->id
     }
 
     public static function getColumns(): array

@@ -84,6 +84,22 @@ class Rating extends AppActiveRecord
         ];
     }
 
+    final static public function updateUserRating(string $uid, float $points)
+    {
+       $user = User::findByUID($uid);
+       $userRating = Rating::find()->where(['user_id' => $user->id])->one();
+
+       if ($userRating === null) {
+            $rating = new Rating();
+            $rating->user_id = $user->id;
+            $rating->max_points = $points;
+            $rating->save();
+       } else {
+           $userRating->max_points += $points;
+           $userRating->save();
+       }
+    }
+
     final public function getUser(): ActiveQuery
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);

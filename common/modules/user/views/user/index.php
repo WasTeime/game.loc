@@ -5,9 +5,12 @@ use admin\components\widgets\gridView\{Column, ColumnDate, ColumnSelect2, Column
 use admin\modules\rbac\components\RbacHtml;
 use admin\widgets\sortableGridView\SortableGridView;
 use common\components\export\ExportMenu;
+use common\components\helpers\UserUrl;
+use common\models\GameSearch;
 use common\modules\user\{enums\Status, models\User, Module};
 use kartik\grid\SerialColumn;
 use kartik\icons\Icon;
+use yii\helpers\Url;
 
 /**
  * @var $this         yii\web\View
@@ -75,7 +78,22 @@ $this->params['layout_class'] = 'container-fluid';
             ),*/
             [
                 'class' => GroupedActionColumn::class,
-                'template' => '{view} {delete}',
+                'template' => '{view} {games} {delete}',
+                'buttons' => [
+                    'games' => static function ($url, User $model, $key) {
+                        if ($model::isGamesExist($model->uid)) {
+                            return RbacHtml::a(
+                                Icon::show('envelope'),
+                                UserUrl::setFilters(
+                                    GameSearch::class,
+                                    ['/game/index', 'GameSearch' => ['user_id' => $model->id]]
+                                ),
+                                ['data-pjax' => 0]
+                            );
+                        }
+                        return null;
+                    }
+                ]
 /*                'template' => '{view} {mail} {delete}',
                 'buttons' => [
                     'mail' => static function ($url, User $model) {

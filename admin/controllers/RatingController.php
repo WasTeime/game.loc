@@ -23,6 +23,7 @@ use yii\web\Response;
  */
 final class RatingController extends AdminController
 {
+    const PAGE_SIZE = 10;
     /**
      * {@inheritdoc}
      */
@@ -46,18 +47,13 @@ final class RatingController extends AdminController
      */
     public function actionIndex(): string
     {
-        $model = new Rating();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', "Элемент №$model->id создан успешно");
-        }
-
         $searchModel = new RatingSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->pagination->pageSize = self::PAGE_SIZE;
 
         return $this->render(
             'index',
-            ['searchModel' => $searchModel, 'dataProvider' => $dataProvider, 'model' => $model]
+            ['searchModel' => $searchModel, 'dataProvider' => $dataProvider]
         );
     }
 
@@ -80,7 +76,7 @@ final class RatingController extends AdminController
      *
      * @throws InvalidConfigException
      */
-    public function actionCreate(string $redirect = null): Response|string
+    /*public function actionCreate(string $redirect = null): Response|string
     {
         $model = new Rating();
 
@@ -94,7 +90,7 @@ final class RatingController extends AdminController
         }
 
         return $this->render('create', ['model' => $model]);
-    }
+    }*/
 
     /**
      * Updates an existing Rating model.
@@ -104,7 +100,7 @@ final class RatingController extends AdminController
      * @throws NotFoundHttpException if the model cannot be found
      * @throws InvalidConfigException
      */
-    public function actionUpdate(int $id): Response|string
+    /*public function actionUpdate(int $id): Response|string
     {
         $model = $this->findModel($id);
 
@@ -114,7 +110,7 @@ final class RatingController extends AdminController
         }
 
         return $this->render('update', ['model' => $model]);
-    }
+    }*/
 
     /**
      * Deletes an existing Rating model.
@@ -125,12 +121,12 @@ final class RatingController extends AdminController
      * @throws StaleObjectException
      * @throws Throwable
      */
-    public function actionDelete(int $id): Response
+    /*public function actionDelete(int $id): Response
     {
         $this->findModel($id)->delete();
         Yii::$app->session->setFlash('success', "Элемент №$id удален успешно");
         return $this->redirect(UserUrl::setFilters(RatingSearch::class));
-    }
+    }*/
 
     /**
      * Finds the Rating model based on its primary key value.

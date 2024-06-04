@@ -12,7 +12,6 @@ use yii\widgets\ListView;
  * @var $this         yii\web\View
  * @var $searchModel  common\models\RatingSearch
  * @var $dataProvider yii\data\ActiveDataProvider
- * @var $model        common\models\Rating
  */
 
 $this->title = Yii::t('app', 'Ratings');
@@ -37,11 +36,14 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => SerialColumn::class],
 
 //            Column::widget(),
-            Column::widget(['attr' => 'user_id', 'editable' => false]),
+            Column::widget(['attr' => 'user', 'editable' => false]),
             Column::widget(['attr' => 'max_points', 'editable' => false]),
             ColumnDate::widget(['attr' => 'updated_at', 'searchModel' => $searchModel, 'editable' => false]),
 
-            ['class' => GroupedActionColumn::class]
+            [
+                'class' => GroupedActionColumn::class,
+                'template' => '{view} {delete}'
+            ]
         ]
     ]) ?>
 </div>
